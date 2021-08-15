@@ -1,0 +1,2 @@
+rootProject.name = 'todo-mvc-service'
+include('app')

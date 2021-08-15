@@ -1,0 +1,25 @@
+plugins {
+    id 'application'
+}
+
+sourceCompatibility = '16'
+targetCompatibility = '16'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:22.0.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+application {
+    mainClass = 'todo.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
