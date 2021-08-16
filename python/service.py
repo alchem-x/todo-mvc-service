@@ -1,9 +1,21 @@
 import json
+import time
+
 import store
 from cgi import parse_header, parse_multipart
 
 from urllib.parse import parse_qs
 from http.server import BaseHTTPRequestHandler
+
+
+def info(func):
+    def __info(*args, **kwargs):
+        s = time.time()
+        r = func(*args, **kwargs)
+        request = args[0]
+        print(f'func_name:{func.__name__} method:{request.command},path:{request.path} cost:{time.time()-s}')
+        return r
+    return __info
 
 
 class Resquest(BaseHTTPRequestHandler):
@@ -29,11 +41,11 @@ class Resquest(BaseHTTPRequestHandler):
 
         return post_data
 
+    @info
     def do_GET(self):
         """
         /
         /todo/list?status=active
-        :return:
         """
         self.url_format()
 
@@ -54,6 +66,7 @@ class Resquest(BaseHTTPRequestHandler):
         else:
             self.header(404)
 
+    @info
     def do_POST(self):
         """
         data = {content:str}
@@ -68,6 +81,7 @@ class Resquest(BaseHTTPRequestHandler):
         else:
             self.header(404)
 
+    @info
     def do_PUT(self):
         """
         pout_data = {id:int,content:str, status:str}
@@ -88,6 +102,7 @@ class Resquest(BaseHTTPRequestHandler):
         else:
             self.header(404)
 
+    @info
     def do_DELETE(self):
         """
         delete /todo?id=1,2,3
