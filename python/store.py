@@ -20,3 +20,45 @@ def fetch():
     except Exception as ee:
         print(ee)
     return []
+
+
+def create(content):
+    todo_list = fetch()
+    if todo_list:
+        todo_id = todo_list[-1]['id'] + 1
+    else:
+        todo_id = 0
+    item = {'id': todo_id, 'content': content, 'status': 'active'}
+    todo_list.append(item)
+    save(todo_list)
+    return item
+
+
+def update(data):
+    todo_list = fetch()
+    todo_id = data['id']
+    item = todo_list[todo_id]
+    item.update(data)
+    save(todo_list)
+    return item
+
+
+def delete(data):
+    done = []
+    todo_list = fetch()
+    for i in data:
+        index = __list_delete(todo_list, i)
+        if index is not None:
+            todo_list.pop(index)
+            done.append(index)
+    save(todo_list)
+    return done
+
+
+def __list_delete(todo_list, sid):
+    index = None
+    for i, item in enumerate(todo_list):
+        if item['id'] == int(sid):
+            index = i
+            break
+    return index
