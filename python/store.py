@@ -4,6 +4,10 @@ file_name = "todo.json"
 
 
 def save(todo_list):
+    """
+    item: {'id': int, 'content': str, 'status': str}
+    :param todo_list: [item]
+    """
     with open(file_name, 'w') as f:
         json.dump(todo_list, f)
 
