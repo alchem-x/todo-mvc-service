@@ -1,14 +1,18 @@
-import pickle
+import json
 
-file_name = "pickle.pkl"
+file_name = "todo.json"
 
 
 def save(todo_list):
-    with open(file_name, 'wb') as f:
-        pickle.dump(todo_list, f)
+    with open(file_name, 'w') as f:
+        json.dump(todo_list, f)
 
 
 def fetch():
-    with open(file_name, 'rb') as f:
-        todo_list = pickle.load(f)
-        return todo_list
+    try:
+        with open(file_name, 'r') as f:
+            todo_list = json.load(f)
+            return todo_list
+    except Exception as ee:
+        print(ee)
+    return []
