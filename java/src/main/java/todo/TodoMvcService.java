@@ -60,12 +60,16 @@ public class TodoMvcService {
 
     private void handleUpdateTodo(@NotNull HttpExchange httpExchange) throws IOException {
         var todo = TodoStore.objectMapper().readValue(httpExchange.getRequestBody(), Todo.class);
+        if (todo.id() == null) {
+            throw new IllegalArgumentException("Todo ID is missing");
+        }
         if (!Todo.isLegalStatus(todo.status())) {
-            throw new IllegalArgumentException("Illegal Todo status");
+            throw new IllegalArgumentException("Illegal todo status");
         }
         if (isTextEmpty(todo.content())) {
             throw new IllegalArgumentException("Todo content must be not empty");
         }
+
         this.todoStore.updateTodo(todo);
         reply200(httpExchange);
     }
