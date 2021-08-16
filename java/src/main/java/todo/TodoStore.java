@@ -71,6 +71,15 @@ public class TodoStore {
         this.persistentTodoList(newTodoList);
     }
 
+    public void prune() {
+        var storeFilePath = Paths.get(this.storeFilePath);
+        try {
+            Files.deleteIfExists(storeFilePath);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
     private void persistentTodoList(@NotNull List<Todo> todoList) {
         var storeFilePath = Paths.get(this.storeFilePath);
         try {
