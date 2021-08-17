@@ -13,13 +13,15 @@ async function handleAddNewTodo(content) {
         throw new Error('Todo content must be not empty')
     }
     const todoList = await readFromFile()
-    const newId = Math.max(...todoList.map(it => it.id)) + 1
-    todoList.push({
+    const newId = todoList.length ? Math.max(...todoList.map(it => it.id)) + 1 : 1
+    const newTodo = {
         id: newId,
         content,
         status: 'active',
-    })
+    }
+    todoList.push(newTodo)
     await persistentToFile(todoList)
+    return newTodo
 }
 
 async function handleUpdateTodo(todo) {
@@ -42,7 +44,7 @@ async function handleBulkDeleteTodo(idList) {
         return
     }
     const todoList = await readFromFile()
-    const newTodoList = todoList.map(it => !idList.includes(it.id))
+    const newTodoList = todoList.filter(it => !idList.includes(it.id))
     await persistentToFile(newTodoList)
 }
 
@@ -91,6 +93,7 @@ export default async function service(req, res) {
                     .map(id => Number(id))
                     .filter(id => !!id)
                 await handleBulkDeleteTodo(idList)
+                res.end()
                 break
             default:
                 res.statusCode = 404

@@ -18,3 +18,12 @@ export async function persistentToFile(todoList) {
     await fs.writeFile(filename, JSON.stringify(todoList))
 }
 
+export async function prune() {
+    try {
+        await fs.rm(filename)
+    } catch (err) {
+        if (err.code !== 'ENOENT') {
+            throw err
+        }
+    }
+}
