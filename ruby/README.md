@@ -1,9 +1,9 @@
-# Todo MVC Service: Node.js
+# Todo MVC Service: Ruby
 
 ## Start
 
 ```sh
-npm start
+ruby app.rb
 ```
 
 - See: `http://localhost:8080/`
@@ -11,5 +11,5 @@ npm start
 ## Test
 
 ```sh
-npm test
+ruby test.rb
 ```

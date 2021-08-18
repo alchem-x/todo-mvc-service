@@ -1,9 +1,13 @@
 # Todo MVC Service: Python
 
-### run
-- python app.py
+## Run
 
-### test
-- python test_app.py
+```sh
+python app.py
+```
 
+## Test
 
+```sh
+python test_app.py
+```

@@ -22,13 +22,15 @@ public class TodoMvcService {
     private final int port;
     private final TodoStore todoStore;
 
+    private HttpServer httpServer;
+
     public TodoMvcService(@NotNull Options options) {
         this.todoStore = new TodoStore(options.storeFilePath());
         this.port = options.port();
     }
 
     private void handleHi(@NotNull HttpExchange httpExchange) throws IOException {
-        this.reply200(httpExchange, "Todo MVC Service");
+        reply200(httpExchange, "Todo MVC Service");
     }
 
     private void handleGetTodoList(@NotNull HttpExchange httpExchange) throws IOException {
@@ -41,32 +43,42 @@ public class TodoMvcService {
             todoList = todoList.stream().filter(it -> Objects.equals(it.status(), status)).toList();
         }
         var data = TodoStore.objectMapper().writeValueAsString(todoList);
-        this.reply200(httpExchange, data);
+        reply200(httpExchange, data);
     }
 
     private void handleAddNewTodo(@NotNull HttpExchange httpExchange) throws IOException {
         var todo = TodoStore.objectMapper().readValue(httpExchange.getRequestBody(), Todo.class);
+        if (isTextEmpty(todo.content())) {
+            throw new IllegalArgumentException("Todo content must be not empty");
+        }
         var newTodo = this.todoStore.addNewTodo(todo.content());
         var responseHeaders = httpExchange.getResponseHeaders();
         responseHeaders.set("Content-Type", "application/json; charset=UTF-8");
         var data = TodoStore.objectMapper().writeValueAsString(newTodo);
-        this.reply200(httpExchange, data);
+        reply200(httpExchange, data);
     }
 
     private void handleUpdateTodo(@NotNull HttpExchange httpExchange) throws IOException {
         var todo = TodoStore.objectMapper().readValue(httpExchange.getRequestBody(), Todo.class);
-        if (!Todo.isLegalStatus(todo.status())) {
-            throw new IllegalArgumentException("Illegal Todo status");
+        if (todo.id() == null) {
+            throw new IllegalArgumentException("Todo ID is missing");
         }
+        if (!Todo.isLegalStatus(todo.status())) {
+            throw new IllegalArgumentException("Illegal todo status");
+        }
+        if (isTextEmpty(todo.content())) {
+            throw new IllegalArgumentException("Todo content must be not empty");
+        }
+
         this.todoStore.updateTodo(todo);
-        this.reply200(httpExchange);
+        reply200(httpExchange);
     }
 
     private void handleBulkDeleteTodo(@NotNull HttpExchange httpExchange) throws IOException {
         var query = httpExchange.getRequestURI().getQuery();
         var idList = getTodoIdListFromQuery(query);
         this.todoStore.bulkDeleteTodo(idList);
-        this.reply200(httpExchange);
+        reply200(httpExchange);
     }
 
     public void start() {
@@ -76,31 +88,43 @@ public class TodoMvcService {
         this.router.put(new Route("PUT", "/todo"), this::handleUpdateTodo);
         this.router.put(new Route("DELETE", "/todo"), this::handleBulkDeleteTodo);
         //
-        var server = createHttpServer(this.port);
-        server.createContext("/", (httpExchange) -> {
+        this.httpServer = createHttpServer(this.port);
+        this.httpServer.createContext("/", (httpExchange) -> {
             var path = httpExchange.getRequestURI().getPath();
             var method = httpExchange.getRequestMethod();
             var handler = this.router.get(new Route(method, path));
             if (handler == null) {
-                this.reply404(httpExchange);
+                reply404(httpExchange);
                 return;
             }
             try {
                 handler.handle(httpExchange);
             } catch (Exception ex) {
                 var message = Objects.requireNonNullElse(ex.getMessage(), "Bad Request");
-                this.reply400(httpExchange, message);
+                reply400(httpExchange, message);
             }
         });
-        server.setExecutor(ForkJoinPool.commonPool());
-        server.start();
+        this.httpServer.setExecutor(ForkJoinPool.commonPool());
+        this.httpServer.start();
     }
 
-    private void reply200(@NotNull HttpExchange httpExchange) throws IOException {
-        this.reply200(httpExchange, null);
+    public void stop() {
+        if (this.httpServer == null) {
+            return;
+        }
+        this.httpServer.stop(0);
+        this.httpServer = null;
     }
 
-    private void reply200(@NotNull HttpExchange httpExchange, @Nullable String data) throws IOException {
+    public TodoStore todoStore() {
+        return this.todoStore;
+    }
+
+    private static void reply200(@NotNull HttpExchange httpExchange) throws IOException {
+        reply200(httpExchange, null);
+    }
+
+    private static void reply200(@NotNull HttpExchange httpExchange, @Nullable String data) throws IOException {
         try (var responseBody = httpExchange.getResponseBody()) {
             data = Objects.requireNonNullElse(data, "");
             var body = data.getBytes(UTF_8);
@@ -109,7 +133,7 @@ public class TodoMvcService {
         }
     }
 
-    private void reply400(@NotNull HttpExchange httpExchange, @Nullable String message) throws IOException {
+    private static void reply400(@NotNull HttpExchange httpExchange, @Nullable String message) throws IOException {
         try (var responseBody = httpExchange.getResponseBody()) {
             message = Objects.requireNonNullElse(message, "400 Bad Request");
             var body = message.getBytes(UTF_8);
@@ -118,7 +142,7 @@ public class TodoMvcService {
         }
     }
 
-    private void reply404(@NotNull HttpExchange httpExchange) throws IOException {
+    private static void reply404(@NotNull HttpExchange httpExchange) throws IOException {
         try (var responseBody = httpExchange.getResponseBody()) {
             var body = "404 Not Found".getBytes(UTF_8);
             httpExchange.sendResponseHeaders(404, body.length);
@@ -178,9 +202,13 @@ public class TodoMvcService {
         }
     }
 
-    public record Options(@NotNull String storeFilePath, @NotNull Integer port) {
+    private static boolean isTextEmpty(String s) {
+        return s == null || s.trim().length() == 0;
     }
 
-    private record Route(@NotNull String method, @NotNull String path) {
+    public static record Options(@NotNull String storeFilePath, @NotNull Integer port) {
+    }
+
+    private static record Route(@NotNull String method, @NotNull String path) {
     }
 }

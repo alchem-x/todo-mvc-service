@@ -1,0 +1,17 @@
+{
+  "name": "todo-mvc-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "cbdyzj",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
