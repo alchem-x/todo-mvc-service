@@ -2,6 +2,21 @@
 
 - See: [TodoMVC](https://todomvc.com/)
 
+## Progress
+
+- [ ] C
+- [ ] C#
+- [ ] C++
+- [ ] Go
+- [x] Java
+- [x] Node.js
+- [ ] Perl, *Progressing*
+- [ ] PHP
+- [x] Python
+- [x] Ruby
+- [ ] Rust
+- [ ] Swift
+
 ## API
 
 ### Get Todo List
