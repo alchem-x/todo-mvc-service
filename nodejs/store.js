@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs'
+import fs from 'fs/promises'
 
 const filename = 'todo.json'
 
