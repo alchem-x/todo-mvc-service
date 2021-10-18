@@ -11,7 +11,8 @@
 - [ ] Go
 - [x] Java
 - [x] Node.js
-- [ ] Perl, *Progressing*
+- [x] Perl6
+- [ ] Perl5, *Progressing*
 - [ ] PHP
 - [x] Python
 - [x] Ruby
