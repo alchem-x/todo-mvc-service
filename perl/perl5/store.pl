@@ -30,11 +30,17 @@ sub create{
 }
 
 sub list{
-
+    return read_file();
 }
 
 sub update{
+    my @lines;
+    my $item;
+    @lines = read_file();
+    $item = join(",", @_);
 
+
+    return
 }
 
 sub delete{
