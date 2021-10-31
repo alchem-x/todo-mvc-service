@@ -60,8 +60,8 @@ def main():
     get_list()
     get_list_query('active')
     update_status(2)
-    get_list_query('completed')
-    delete(1)
+    get_list_query()
+    delete('2,9')
     get_list()
     error()
 
