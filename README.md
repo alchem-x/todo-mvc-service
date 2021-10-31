@@ -12,7 +12,7 @@
 - [x] Java
 - [x] Node.js
 - [x] Perl6
-- [ ] Perl5, *Progressing*
+- [x] Perl5
 - [ ] PHP
 - [x] Python
 - [x] Ruby
