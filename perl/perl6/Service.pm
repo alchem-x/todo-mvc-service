@@ -63,10 +63,7 @@ delete '/todo' => sub {
     my $id = request.params<id>;
     my $store = Store::Action.new();
     my @ids = split(",", $id);
-    for @ids -> $id {
-        $store.delete($id.Numeric);
-    }
-    return $id;
+    return to-json $store.delete(@ids);
 };
 
 

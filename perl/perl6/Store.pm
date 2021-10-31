@@ -58,11 +58,25 @@ class Action{
         self.save_file(@lines);
     }
 
-    method delete($index){
+    method delete(@ids){
+        my $flag = 1;
+        my @valid = [];
+        my @new_lines=[];
         my @lines = self.read_file();
-        @lines.splice($index,1);
-        self.save_file(@lines);
+        for @lines -> %item {
+            for @ids -> $id {
+                if %item<id> == $id.Numeric {
+                    $flag=0;
+                    push(@valid, $id);
+                }
+            }
+            if $flag == 1 {
+                push(@new_lines,%item);
+            }
+            $flag=1;
+        }
+        self.save_file(@new_lines);
+        return @valid;
     }
-
 }
 

@@ -1,36 +1,60 @@
 #!/usr/bin/perl
+package WebServer;
 
-# use service;
+use HTTP::Server::Simple::CGI;
+use base qw(HTTP::Server::Simple::CGI);
+use Service;
+use JSON;
 
-my %settings = (
-    'host' => '127.0.0.1',
-    'port' => 8080,
-);
+sub handle_request {
+    my ($self, $cgi) = @_;
+    my $handler = \&resp_info;
 
-
-sub run_server(){
-    print "Started HTTP listener at " . $settings{'host'} . ':' . $settings{'port'} . "\n";
-    my $server = $settings{'host'};
-    my $port = $settings{'port'};
-    my $proto = getprotobyname('tcp');
-
-    socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or die "无法打开 socket $!\n";
-    setsockopt(SOCKET, SOL_SOCKET, SO_REUSEADDR, 1) or die "无法设置 SO_REUSEADDR $!\n";
-    bind( SOCKET, pack_sockaddr_in($port, inet_aton($server))) or die "无法绑定端口 $port! \n";
-
-    listen(SOCKET, 5) or die "listen: $!";
-
-    my $client_addr;
-    while ($client_addr = accept(NEW_SOCKET, SOCKET)) {
-       # send them a message, close connection
-       my $name = gethostbyaddr($client_addr, AF_INET );
-       print NEW_SOCKET "我是来自服务端的信息";
-       print "Connection recieved from $name\n";
-       close NEW_SOCKET;
-    }
-    # while (1) {
-    #     service::http_child($daemon);
-    # }
+    print "HTTP/1.0 200 OK\r\n";
+    print $cgi->header(
+    -type    => 'application/json',
+    -status  => '200',
+    );
+    $handler->($cgi);
 }
 
-run_server();
+sub resp_info {
+    my $cgi = shift;
+    return if !ref $cgi;
+
+    my $json = request_handler->($cgi);
+    print $cgi->param(
+        -name  => 'data',
+        -value => $json,
+        );
+};
+
+sub request_handler(){
+    my $cgi = shift;
+    my $path = $cgi->path_info();
+    my $method = $cgi->request_method();
+    if ( '/ping' eq $path && $method eq 'GET' ) {
+        # return ("ping"=>"pong");
+        return to_json 'pong';
+    }elsif ( '/todo/list' eq $path && $method eq 'GET' ) {
+        my @res = Service::get_todo_list();
+        return to_json \@res;
+    }elsif ( '/todo' eq $path && $method eq 'POST' ) {
+        my %item = Service->add_todo_list($cgi->param(-name=>'content'));
+        return to_json \%item;
+    }elsif ( '/todo' eq $path && $method eq 'PUT' ) {
+        my $id = $cgi->param(-name=>'id');
+        my $content = $cgi->param(-name=>'content');
+        my $status = $cgi->param(-name=>'status');
+        my %item = Service->update_todo_list($id, $content, $status);
+        return to_json \%item;
+    }elsif ( '/todo' eq $path && $method eq 'DELETE' ) {
+        my $id = $cgi->param(-name=>'id');
+        my @res = Service->delete_todo_list($id);
+        return to_json \@res;
+    }else{
+        return to_json "ok";
+    }
+}
+
+WebServer->new(8080)->run();
