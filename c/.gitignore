@@ -1,2 +1,5 @@
+.idea
+build
+todo.json
+*.a
 *.o
-his

@@ -1,8 +1,15 @@
-//
-// Created by Administrator on 2021/11/10.
-//
+#ifndef HEADER_FILE
+#define HEADER_FILE
+#include "cJSON.h"
+#include <stdio.h>
+#include <stdlib.h>
+#define todo_file "todo.json"
 
-#ifndef TODO_MVC_SERVICE_STORE_H
-#define TODO_MVC_SERVICE_STORE_H
+int save_file(cJSON* object);
+cJSON * load_file();
+char* add(char* content);
+char* list(char* status);
+char* update(int update_id, char* content, char* status);
+int delete_item(int id);
 
-#endif //TODO_MVC_SERVICE_STORE_H
+#endif
