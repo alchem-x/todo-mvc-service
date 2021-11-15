@@ -14,6 +14,7 @@ if [[ $1 == 'build' ]];then
   cd shttpd/src
   rm -rf *.o *.a
   make unix
+#  cp -f libshttpd.a ../
   cd ../../
 fi
 

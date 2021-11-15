@@ -3,3 +3,4 @@ build
 todo.json
 *.a
 *.o
+.github

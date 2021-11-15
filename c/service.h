@@ -1,9 +1,7 @@
 #ifndef HEADER_FILE
 #define HEADER_FILE
 
-#include <string.h>
 #include "shttpd.h"
-#include "store.h"
 
 void get_todo(struct shttpd_arg *arg);
 void add_todo(struct shttpd_arg *arg);

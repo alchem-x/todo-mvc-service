@@ -77,7 +77,7 @@ char * list(char* status){
         for (int i=0;i < array_size;i++){
             object = cJSON_GetArrayItem(todo_list, i);
             item_status = cJSON_GetObjectItem(object, "status")->valuestring;
-            printf("status:%s item_status:%s\n", status, item_status);
+//            printf("status:%s item_status:%s\n", status, item_status);
             if(!strcmp(item_status, status)){
 
                 cJSON_AddItemReferenceToArray(res, object);

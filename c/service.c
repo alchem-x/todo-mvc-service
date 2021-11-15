@@ -30,7 +30,7 @@ char* get_ids(char* query_string){
     if(query_string == NULL){
         return NULL;
     }
-    return get_split_1(query_string, "=", "ids");
+    return get_split_1(query_string, "=", "id");
 }
 
 void get_todo(struct shttpd_arg *arg)
@@ -96,20 +96,22 @@ void delete_todo(struct shttpd_arg *arg)
     shttpd_printf(arg, "%s", "Content-Type: application/json\r\n\r\n");
 
     char* res = get_ids((char *)query_string);
+
     char* token = strtok(res,",");
     int id;
-    int flag;
+    int flag=0;
     shttpd_printf(arg, "%s", "[");
     while( token != NULL ) {
         id = atoi(token);
-        flag = delete_item(id);
-        if(flag == 0){
+        if(delete_item(id) == 0){
+            if(flag != 0){
+                shttpd_printf(arg, "%s", ",");
+            }else{
+                flag = 1;
+            }
             shttpd_printf(arg, "%s", token);
         }
         token = strtok(NULL, ",");
-        if(token != NULL){
-            shttpd_printf(arg, "%s", ",");
-        }
     }
     shttpd_printf(arg, "%s", "]");
     arg->flags |= SHTTPD_END_OF_OUTPUT;
